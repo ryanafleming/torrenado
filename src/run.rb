@@ -2,7 +2,7 @@ require_relative 'input_parser'
 require_relative 'torrent_file_saver'
 require 'pry'
 
-parser = InputParser.new("Music_test.txt")
+parser = InputParser.new(ARGV[0])
 
 parser.read_file
 
