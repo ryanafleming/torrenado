@@ -19,14 +19,17 @@ f.each_line do |line|
 
     # parser.search_google_on_missing(song)
 
+    old_pos = f.pos
+    f.print "-"
+
     if (song.sorted_torrents.first)
       # saver.save_to_file(song)
       to_run = "java -cp ./bin Torrenado -f #{song.saved_file} -s \"#{song.name}\" -u larry -p [randomlygeneratedpassword]"
       puts "Running #{to_run}"
       system to_run
 
-      f.print "-"
-      f.pos = f.pos - 1
+      # f.print "-"
+      # f.pos = f.pos - 1
     end
   end
 end
