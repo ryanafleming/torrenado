@@ -24,7 +24,6 @@ lines.each do |line|
 
     parser.search_google_on_missing(song)
 
-    binding.pry
     if (song.sorted_torrents.first && saver.save_to_file(song))
       to_run = "java -cp ./bin Torrenado -f \"#{song.saved_file}\" -s \"#{song.name}\" -u larry -p [randomlygeneratedpassword]"
       puts "Running #{to_run}"
