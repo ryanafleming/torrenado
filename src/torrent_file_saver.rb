@@ -18,7 +18,7 @@ class TorrentFileSaver
     uri = URI.parse(torrent_json['torrentLink'])
     Net::HTTP.start(uri.host, uri.port) do |http|
       resp = http.get(uri.path)
-      open(song.saved_file = "torrents/#{SecureRandom.uuid}.torrent", "wb") do |file|
+      open(song.saved_file = "torrents/#{song.name}.torrent", "wb") do |file|
         file.write(resp.body)
       end
     end
