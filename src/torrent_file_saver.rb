@@ -14,7 +14,6 @@ class TorrentFileSaver
 
   def save_to_file(song)
     torrent_json = song.sorted_torrents.first
-
     uri = URI.parse(torrent_json['torrentLink'])
     Net::HTTP.start(uri.host, uri.port) do |http|
       resp = http.get(uri.path)
@@ -22,5 +21,6 @@ class TorrentFileSaver
         file.write(resp.body)
       end
     end
+    true
   end
 end

@@ -24,15 +24,17 @@ lines.each do |line|
 
     parser.search_google_on_missing(song)
 
-    if (song.sorted_torrents.first)
-      if (saver.save_to_file(song))
-        to_run = "java -cp ./bin Torrenado -f \"#{song.saved_file}\" -s \"#{song.name}\" -u larry -p [randomlygeneratedpassword]"
-        puts "Running #{to_run}"
-        if (system to_run)
-          puts 'Torrent sent to download program'
-        end
-        mark_line_as_done(line)
+    binding.pry
+    if (song.sorted_torrents.first && saver.save_to_file(song))
+      to_run = "java -cp ./bin Torrenado -f \"#{song.saved_file}\" -s \"#{song.name}\" -u larry -p [randomlygeneratedpassword]"
+      puts "Running #{to_run}"
+      if (system to_run)
+        puts 'Torrent sent to download program'
       end
+      mark_line_as_done(line)
+    else
+      puts "ERROR ON SONG #{song.name}"
+      puts "Looks like there are no torrents found for this song in our sources..."
     end
   end
 

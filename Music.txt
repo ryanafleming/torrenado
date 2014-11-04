@@ -16,8 +16,8 @@
 -I'M NOT THE ONLY ONE Sam Smith
 -PRAYER IN C Lilly Wood & The Prick And Robin Schulz
 -ANACONDA Nicki Minaj
--SHOWER Becky G
--ONLY LOVE CAN HURT LIKE THIS Paloma Faith
++SHOWER Becky G
++ONLY LOVE CAN HURT LIKE THIS Paloma Faith
 -DON'T Ed Sheeran
 -ANOTHER MAN Itch
 -ALL ABOUT YOU Hilary Duff
@@ -36,15 +36,15 @@
 -INTO MY ARMS Dean Ray
 -STOLEN DANCE Milky Chance
 -WHERE YOU FROM? Beau Ryan Feat. Justice Crew
-+SECRETS Mary Lambert
-+QUE SERA Justice Crew
-+SING Ed Sheeran
-+GERONIMO Sheppard
-+SUPERHEROES The Script
-+WHEN THE BEAT DROPS OUT Marlon Roudette
-+HAPPY Pharrell Williams
-+BEST DAY OF MY LIFE American Authors
+-SECRETS Mary Lambert
+-QUE SERA Justice Crew
+-SING Ed Sheeran
+-GERONIMO Sheppard
+-SUPERHEROES The Script
+-WHEN THE BEAT DROPS OUT Marlon Roudette
+-HAPPY Pharrell Williams
+-BEST DAY OF MY LIFE American Authors
 +LET IT BE Labrinth
-+I Kendrick Lamar
+-I Kendrick Lamar
 +CHANDELIER Sia
-+SHE CAME TO GIVE IT TO YOU Usher Feat. Nicki Minaj
+-SHE CAME TO GIVE IT TO YOU Usher Feat. Nicki Minaj

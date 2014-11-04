@@ -88,8 +88,8 @@ class InputParser
 
     }.map(&:text).first
 
-    cateogry = n.css('span[id^="cat_"]:first a:first')
-    is_music_category = category && cateogry.text == "Music"
+    category = n.css('span[id^="cat_"]:first a:first')
+    is_music_category = category && category.text == "Music"
     
     song.file_name_in_torrent = filename
     # return false if not found...
