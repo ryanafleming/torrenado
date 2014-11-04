@@ -30,12 +30,6 @@ class InputParser
     f.close
   end
 
-  def search_all
-    songs.each do |song|
-      search_next_song(song)
-    end
-  end
-
   # search kickass api
   def search_next_song(song)
     puts "Searching song #{song.name}"
@@ -61,26 +55,25 @@ class InputParser
     end 
   end
 
-  def search_google_on_missing
-    
-    songs.each do |song|
-      if (song.torrents.empty?)
-        response = HTTParty.get("http://ajax.googleapis.com/ajax/services/search/web",
-          query: {
-            q: "site:kickass.to #{song.name}",
-            v: "1.0"
-          })
+  def search_google_on_missing(song)
+    if (song.torrents.empty?)
+      response = HTTParty.get("http://ajax.googleapis.com/ajax/services/search/web",
+        query: {
+          q: "site:kickass.to #{song.name}",
+          v: "1.0"
+        })
 
-        song.google_results = JSON.parse(response)['responseData']['results']
+      parsed = JSON.parse(response)
+      binding.pry if !(parsed && parsed['responseData'] && parsed['responseData']['results'])
 
-        visit_site_on_google(song)
+      song.google_results = parsed['responseData']['results']
 
-      end
+      visit_site_on_google(song)
     end
-
   end
 
   def verify_torrent(link, song)
+    binding.pry if (!HTTParty.get(link))
     n = Nokogiri::HTML(HTTParty.get(link))
    # get the song filename as it appears
     filename = n.css('.torrentFileList .torFileName').select { |file_in_torrent| 
@@ -99,7 +92,7 @@ class InputParser
 
   def visit_site_on_google(song)
     song.google_results.each {|result|
-
+      binding.pry if (!result['url'])
       n=Nokogiri::HTML(HTTParty.get(result['url']))
 
       number_of_seeds = n.css('.seedBlock').text[-1].to_i

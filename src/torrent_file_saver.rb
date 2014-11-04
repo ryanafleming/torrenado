@@ -8,19 +8,8 @@ class TorrentFileSaver
     self.parser = parser
   end
 
-  def songs_with_torrents
-    parser.songs.select { |song|
-      song.sorted_torrents.first
-    }
-  end
-
-  def save_all
-    # remove old torrents.
+  def clear_torrents
     FileUtils.rm_rf(Dir.glob('torrents/*'))
-
-    songs_with_torrents.each { |song|
-      save_to_file(song)
-    }
   end
 
   def save_to_file(song)
