@@ -1,3 +1,4 @@
+require_relative 'song'
 class InputParser
   require 'httparty'
   require 'nokogiri'
@@ -23,9 +24,7 @@ class InputParser
     f.each_line do |line|
       if line[0] == "+"
         new_song_name = line.split("+")[1].split("\r")[0]
-        songs << Struct.new(:name, :torrents, :google_results, 
-          #ones found by google
-          :torrent_links).new(new_song_name, nil, nil, [])
+        songs << Song.new(new_song_name)
       end
     end
     f.close
@@ -45,11 +44,21 @@ class InputParser
       query: {
         q: song.name,
         field: "seeders",
-        order: "desc",
-        page: "1",
+        order: "desc"
       })
-    song.torrents= JSON.parse(response)['list']
+    # the api doesn't support category filtering it seems... wrote it ourselves.
+    unverified_torrent_results = JSON.parse(response)['list'].select {|result| 
+      result['category'] == "Music"
+    }
 
+
+    # only give one torrent now... the first that verifies with the most seeds.
+    verified = unverified_torrent_results.find { |json_result|
+      verify_torrent(json_result['link'], song)
+    }
+    if verified
+      song.torrents = []
+    end 
   end
 
   def search_google_on_missing
@@ -71,6 +80,23 @@ class InputParser
 
   end
 
+  def verify_torrent(link, song)
+    n = Nokogiri::HTML(HTTParty.get(link))
+   # get the song filename as it appears
+    filename = n.css('.torrentFileList .torFileName').select { |file_in_torrent| 
+      
+          # name has all words that are in the song name
+          song.name.split(" ").all? do |word|
+            file_in_torrent.text.downcase.include?(word.downcase)
+          end 
+
+    }.map(&:text).first
+    
+    song.file_name_in_torrent = filename
+    # return false if not found...
+    !!filename
+  end
+
   def visit_site_on_google(song)
     song.google_results.each {|result|
 
@@ -79,24 +105,10 @@ class InputParser
       number_of_seeds = n.css('.seedBlock').text[-1].to_i
       
       if (number_of_seeds > 0)
-
-        # get the song filename as it appears
-        filename = n.css('.torrentFileList .torFileName').select { |file_in_torrent| 
-          
-              # name has all words
-              song.name.split(" ").all? do |word|
-                file_in_torrent.text.downcase.include?(word.downcase)
-              end 
-
-        }.map(&:text).first
-
-        if (filename)
-          song.torrent_links << {
-            seeds: number_of_seeds,
-            song_title_on_page: filename,
-            url: n.css('.downloadButtonGroup a[rel=nofollow]')[0]['href']
-          }
-        end
+        song.torrent_links << {
+          seeds: number_of_seeds,
+          'torrentLink' => n.css('.downloadButtonGroup a[rel=nofollow]')[0]['href']
+        }
       end
     }
   end
