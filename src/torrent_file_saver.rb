@@ -3,8 +3,9 @@ class TorrentFileSaver
   require 'uri'
   require 'securerandom'
 
-  attr_accessor :parser
-  def initialize(parser=nil)
+  attr_accessor :parser, :root_dir
+  def initialize(parser=nil,root_dir)
+    self.root_dir = root_dir
     self.parser = parser
   end
 
@@ -17,7 +18,7 @@ class TorrentFileSaver
     uri = URI.parse(torrent_json['torrentLink'])
     Net::HTTP.start(uri.host, uri.port) do |http|
       resp = http.get(uri.path)
-      open(song.saved_file = "torrents/#{song.name}.torrent", "wb") do |file|
+      open(song.saved_file = root_dir + "#{song.name}.torrent", "wb") do |file|
         file.write(resp.body)
       end
     end

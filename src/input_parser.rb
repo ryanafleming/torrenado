@@ -2,7 +2,9 @@ require_relative 'song'
 class InputParser
   require 'httparty'
   require 'nokogiri'
-  attr_accessor :songs, :in_file, :out_file
+  require 'pry'
+    # => Methods and attributes no longer required
+  attr_accessor :songs#, :in_file, :out_file
 
       #   response = HTTParty.get("http://fenopy.se/module/search/api.php",
       # query: {
@@ -13,38 +15,40 @@ class InputParser
       #   category: "1"
       # })
 
-  def initialize(in_file, out_file=nil)
-    self.in_file = in_file
-    self.out_file = out_file
+  def initialize()
+  #  self.in_file = in_file
+  #  self.out_file = out_file
     self.songs = []
   end
 
-  def read_file
-    f = File.open(in_file, "r")
-    f.each_line do |line|
-      if line[0] == "+"
-        new_song_name = line.split("+")[1].split("\r")[0]
-        songs << Song.new(new_song_name)
-      end
-    end
-    f.close
-  end
+
+  #def read_file
+  #  f = File.open(in_file, "r")
+  #  f.each_line do |line|
+  #    if line[0] == "+"
+  #      new_song_name = line.split("+")[1].split("\r")[0]
+  #      songs << Song.new(new_song_name)
+  #    end
+  #  end
+  #  f.close
+  #end
 
   # search kickass api
-  def search_next_song(song)
+  def json_kickass(song)
     puts "Searching song #{song.name}"
 
+    #example https://kickass.to/json.php?q=katy%20perry
     response = HTTParty.get("https://kickass.to/json.php",
       query: {
         q: song.name,
         field: "seeders",
         order: "desc"
       })
+
     # the api doesn't support category filtering it seems... wrote it ourselves.
     unverified_torrent_results = JSON.parse(response)['list'].select {|result| 
       result['category'] == "Music"
     }
-
 
     # only give one torrent now... the first that verifies with the most seeds.
     verified = unverified_torrent_results.find { |json_result|
@@ -53,6 +57,7 @@ class InputParser
     if verified
       song.torrents = []
     end 
+    #binding.pry
   end
 
   def search_google_on_missing(song)
@@ -79,7 +84,7 @@ class InputParser
   def verify_torrent(link, song)
    n = Nokogiri::HTML(HTTParty.get(link))
    # get the song filename as it appears
-    filename = n.css('.torrentFileList .torFileName').select { |file_in_torrent| 
+   filename = n.css('.torrentFileList .torFileName').select { |file_in_torrent| 
       
           # name has all words that are in the song name
           song.name.split(" ").all? do |word|
@@ -87,6 +92,8 @@ class InputParser
           end
 
     }.map(&:text).first
+
+    #binding.pry
 
     category = n.css('span[id^="cat_"]:first a:first')
     is_music_category = category && category.text == "Music"
