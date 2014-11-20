@@ -21,18 +21,6 @@ class InputParser
     self.songs = []
   end
 
-
-  #def read_file
-  #  f = File.open(in_file, "r")
-  #  f.each_line do |line|
-  #    if line[0] == "+"
-  #      new_song_name = line.split("+")[1].split("\r")[0]
-  #      songs << Song.new(new_song_name)
-  #    end
-  #  end
-  #  f.close
-  #end
-
   # search kickass api
   def json_kickass(song)
 
@@ -46,17 +34,19 @@ class InputParser
       })
 
     # the api doesn't support category filtering it seems... wrote it ourselves.
+    # filter by category
     unverified_torrent_results = JSON.parse(response)['list'].select {|result| 
       result['category'] == "Music"
     }
 
-    # only give one torrent now... the first that verifies with the most seeds.
+    # only give one torrent now... 
+    # the first that verifies with the most seeds.
+    # if none are valid, return nil
     verified = unverified_torrent_results.find { |json_result|
       verify_torrent(json_result['link'], song)
     }
-    binding.pry
     if verified
-      song.torrents = []
+      song.torrents = [ verified["torrentLink"] ]
     end 
     
   end
@@ -104,8 +94,7 @@ class InputParser
 
     song.file_name_in_torrent = filename
     # return false if not found...
-binding.pry
-    filename && is_music_category
+    return (filename && is_music_category)
     
   rescue Exception => ex
     puts "ERROR ON SONG #{song.name}"

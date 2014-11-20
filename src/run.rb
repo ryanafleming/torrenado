@@ -20,9 +20,9 @@ elsif (RUBY_PLATFORM == "x64-mingw32")
   os_dir = "C:\\Transmission\\transmission-executables\\transmission\\"
   torrent_dir = "torrents\\"
 else
-  puts("MacOS?")
-  os_dir = ""
-  quit
+  puts("Other")
+  os_dir = "./"
+  torrent_dir = "torrents/"
 end
 
 
@@ -34,9 +34,9 @@ lines = File.readlines(ARGV[0])
 lines.each do |line|
   if line[0] == "+"
     new_song_name = line.split("+")[1].split("\n")[0]
-	#puts "Searching song #{new_song_name}"
-    
-	song = Song.new(new_song_name)
+  	#puts "Searching song #{new_song_name}"
+      
+  	song = Song.new(new_song_name)
     parser.songs << song
 
     parser.json_kickass(song)
