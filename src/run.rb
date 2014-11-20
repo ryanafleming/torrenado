@@ -19,7 +19,6 @@ elsif (RUBY_PLATFORM == "x64-mingw32")
   puts("Windows")
   os_dir = "C:\\Transmission\\transmission-executables\\transmission\\"
   torrent_dir = "torrents\\"
-  puts("java -cp #{os_dir}bin Torrenado -f")
 else
   puts("MacOS?")
   os_dir = ""
@@ -35,18 +34,22 @@ lines = File.readlines(ARGV[0])
 lines.each do |line|
   if line[0] == "+"
     new_song_name = line.split("+")[1].split("\n")[0]
-    song = Song.new(new_song_name)
+	#puts "Searching song #{new_song_name}"
+    
+	song = Song.new(new_song_name)
     parser.songs << song
 
     parser.json_kickass(song)
 
-     parser.search_google_on_missing(song)
-
+    if (song.torrent_links.empty?)
+      parser.search_google_on_missing(song)
+    end
+    
     if (song.sorted_torrents.first && saver.save_to_file(song))
-      to_run = "java -cp #{os_dir}bin Torrenado -f \"#{song.saved_file}\" -s \"#{song.name}\" -u larry -p [randomlygeneratedpassword]"
+      to_run = "java -cp #{os_dir}bin Torrenado -f \"#{song.saved_file}\" -s \"#{song.name}\" -u larry -p [randomlygeneratedpassword] --silent"
       #system "java -cp C:\\Transmission\\transmission-executables\\transmission\\bin Torrenado -f \"C:\\Transmission\\transmission-executables\\transmission\\torrents\\02 Story Of My Life.mp3.torrent\" -s \"Story of my life\" -u larry -p [randomlygeneratedpassword]"
       puts "Running #{to_run}"
-      if (system to_run)
+      if (system to_run) 
         puts 'Torrent sent to download program'
       end
       mark_line_as_done(line)
@@ -55,9 +58,4 @@ lines.each do |line|
       puts "Looks like there are no torrents found for this song in our sources..."
     end
   end
-
 end
-
-
-
-

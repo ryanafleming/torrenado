@@ -35,7 +35,7 @@ class InputParser
 
   # search kickass api
   def json_kickass(song)
-    puts "Searching song #{song.name}"
+
 
     #example https://kickass.to/json.php?q=katy%20perry
     response = HTTParty.get("https://kickass.to/json.php",
@@ -54,25 +54,26 @@ class InputParser
     verified = unverified_torrent_results.find { |json_result|
       verify_torrent(json_result['link'], song)
     }
+    binding.pry
     if verified
       song.torrents = []
     end 
-    #binding.pry
+    
   end
 
   def search_google_on_missing(song)
-    if (song.torrents.empty?)
-      response = HTTParty.get("http://ajax.googleapis.com/ajax/services/search/web",
-        query: {
-          q: "site:kickass.to #{song.name}",
-          v: "1.0"
-        })
+    
+    response = HTTParty.get("http://ajax.googleapis.com/ajax/services/search/web",
+      query: {
+        q: "site:kickass.to #{song.name}",
+        v: "1.0"
+      })
 
-      song.google_results = JSON.parse(response)['responseData']['results']
+    song.google_results = JSON.parse(response)['responseData']['results']
 
-      visit_site_on_google(song)
+    visit_site_on_google(song)
 
-    end
+    
     rescue Exception => ex
       puts "ERROR ON SONG #{song.name}"
       puts "Bad response from google api"
@@ -84,24 +85,28 @@ class InputParser
   def verify_torrent(link, song)
    n = Nokogiri::HTML(HTTParty.get(link))
    # get the song filename as it appears
-   filename = n.css('.torrentFileList .torFileName').select { |file_in_torrent| 
-      
-          # name has all words that are in the song name
-          song.name.split(" ").all? do |word|
-            file_in_torrent.text.downcase.include?(word.downcase)
-          end
+   filename = n.css('.torrentFileList .torFileName').map(&:text).first
+   #filename = n.css('.torrentFileList .torFileName').select { |file_in_torrent| 
+   #   
+   #       # name has all words that are in the song name
+   #       song.name.split(" ").all? do |word|
+   #         file_in_torrent.text.downcase.include?(word.downcase)
+   #       end
+   #}.map(&:text).first
 
-    }.map(&:text).first
+    # <td class="torFileIcon"><span class="torType musicType"></span></td>
+    #n.css("span[class*='torType']")[0]
+    #orrr
 
-    #binding.pry
-
-    category = n.css('span[id^="cat_"]:first a:first')
+    #<span id="cat_9413652"><strong><a href="/music/">Music</a>
+    category = n.css('span[id^="cat_"]:first a:first')[0]
     is_music_category = category && category.text == "Music"
-    
+
     song.file_name_in_torrent = filename
     # return false if not found...
+binding.pry
     filename && is_music_category
-
+    
   rescue Exception => ex
     puts "ERROR ON SONG #{song.name}"
     puts "Error going to torrent page to verify"
@@ -124,7 +129,6 @@ class InputParser
             'torrentLink' => n.css('.downloadButtonGroup a[rel=nofollow]')[0]['href']
           }
         end
-
       rescue URI::InvalidURIError => ex
         puts "ERROR ON SONG #{song.name}"
         puts "URI::InvalidURIError"
